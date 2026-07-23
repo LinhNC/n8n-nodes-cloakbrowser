@@ -1,16 +1,16 @@
 {
-  "name": "n8n-nodes-puppeteer",
+  "name": "n8n-nodes-cloakbrowser",
   "version": "1.5.0",
-  "description": "n8n node for browser automation using Puppeteer",
+  "description": "n8n node for CloakBrowser automation using Puppeteer",
   "license": "MIT",
-  "homepage": "https://github.com/drudge/n8n-nodes-puppeteer",
+  "homepage": "https://github.com/LinhNC/n8n-nodes-cloakbrowser",
   "author": {
-    "name": "Nicholas Penree",
-    "email": "nick@penree.com"
+    "name": "Linh Nguyen",
+    "email": "me@linhgo.com"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/drudge/n8n-nodes-puppeteer.git"
+    "url": "git+https://github.com/LinhNC/n8n-nodes-cloakbrowser.git"
   },
   "main": "index.js",
   "scripts": {
