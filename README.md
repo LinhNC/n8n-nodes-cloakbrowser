@@ -1,8 +1,8 @@
-# n8n-nodes-puppeteer
+# n8n-nodes-cloakbrowser
 
 ![n8n.io - Workflow Automation](https://raw.githubusercontent.com/n8n-io/n8n/master/assets/n8n-logo.png)
 
-[n8n](https://www.n8n.io) node for browser automation using [Puppeteer](https://pptr.dev/). Execute custom scripts, capture screenshots and PDFs, scrape content, and automate web interactions using Chrome/Chromium's DevTools Protocol. Full access to Puppeteer's API plus n8n's Code node capabilities makes this node powerful for any browser automation task.
+[n8n](https://www.n8n.io) node for CloakBrowser automation using [Puppeteer](https://pptr.dev/). Execute custom scripts, capture screenshots and PDFs, scrape content, and automate web interactions using Chrome/Chromium's DevTools Protocol. Full access to Puppeteer's API plus n8n's Code node capabilities makes this node powerful for any browser automation task.
 
 ## How to install
 
