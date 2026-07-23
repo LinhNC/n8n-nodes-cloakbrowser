@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-cloakbrowser",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "n8n node for CloakBrowser automation using Puppeteer",
   "license": "MIT",
   "homepage": "https://github.com/LinhNC/n8n-nodes-cloakbrowser",
@@ -16,6 +16,7 @@
   "scripts": {
     "dev": "npm run watch",
     "build": "tsc && gulp",
+    "prepack": "npm run build",
     "lint": "tslint -p tsconfig.json -c tslint.json",
     "lintfix": "tslint --fix -p tsconfig.json -c tslint.json",
     "nodelinter": "nodelinter",

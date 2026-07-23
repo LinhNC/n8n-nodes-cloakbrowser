@@ -650,7 +650,7 @@ export class Puppeteer implements INodeType {
     const executablePath = options.executablePath as string;
 
     // Support environment variables for browser connection
-    const browserWSEndpoint =
+    let browserWSEndpoint =
       (options.browserWSEndpoint as string) ||
       process.env.PUPPETEER_BROWSER_WS_ENDPOINT ||
       process.env.PUPPETEER_WS_ENDPOINT ||
@@ -768,10 +768,11 @@ export class Puppeteer implements INodeType {
   		if (browserWSEndpoint) {
     		connectedToRemoteBrowser = true;
 
-    		browser = await puppeteer.connect({
-      		browserWSEndpoint,
-      		protocolTimeout,
-    		});
+        browser = await puppeteer.connect({
+          browserWSEndpoint,
+          protocol: protocol || "cdp",
+          protocolTimeout,
+        });
   		} else {
     		browser = await puppeteer.launch({
       		headless,
