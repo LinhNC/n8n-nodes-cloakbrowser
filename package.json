@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-cloakbrowser",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "description": "n8n node for CloakBrowser automation using Puppeteer",
   "license": "MIT",
   "homepage": "https://github.com/LinhNC/n8n-nodes-cloakbrowser",
