@@ -83,6 +83,56 @@ type ErrorResponse = INodeExecutionData & {
 const DEFAULT_USER_AGENT =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36";
 
+interface BrowserDiscoveryResponse {
+  webSocketDebuggerUrl?: string;
+}
+
+async function resolveBrowserWSEndpoint(
+  staticEndpoint: string,
+  discoveryUrl: string,
+): Promise<string> {
+  if (staticEndpoint) {
+    return staticEndpoint;
+  }
+
+  if (!discoveryUrl) {
+    return '';
+  }
+
+  let response: Response;
+
+  try {
+    response = await fetch(discoveryUrl, {
+      headers: {
+        Accept: 'application/json',
+      },
+    });
+  } catch (error) {
+    throw new Error(
+      `Failed to connect to browser discovery endpoint "${discoveryUrl}": ${
+        (error as Error).message
+      }`,
+    );
+  }
+
+  if (!response.ok) {
+    throw new Error(
+      `Browser discovery endpoint returned HTTP ${response.status}`,
+    );
+  }
+
+  const discovery =
+    (await response.json()) as BrowserDiscoveryResponse;
+
+  if (!discovery.webSocketDebuggerUrl) {
+    throw new Error(
+      'Browser discovery response does not contain webSocketDebuggerUrl',
+    );
+  }
+
+  return discovery.webSocketDebuggerUrl;
+}
+
 async function handleError(
   this: IExecuteFunctions,
   error: Error,
@@ -605,6 +655,10 @@ export class Puppeteer implements INodeType {
       process.env.PUPPETEER_BROWSER_WS_ENDPOINT ||
       process.env.PUPPETEER_WS_ENDPOINT ||
       "";
+		// Support environment variables for browser discovery
+		const browserDiscoveryUrl =
+  		process.env.PUPPETEER_BROWSER_DISCOVERY_URL || '';
+		
     const protocol =
       (options.protocol as "cdp" | "webDriverBiDi" | undefined) ||
       (process.env.PUPPETEER_PROTOCOL as "cdp" | "webDriverBiDi" | undefined);
@@ -703,38 +757,34 @@ export class Puppeteer implements INodeType {
     }
 
     let browser: Browser;
-    try {
-      if (browserWSEndpoint) {
-        const isFromEnv =
-          !options.browserWSEndpoint &&
-          (process.env.PUPPETEER_BROWSER_WS_ENDPOINT ||
-            process.env.PUPPETEER_WS_ENDPOINT);
-        if (isFromEnv) {
-          console.log(
-            `Puppeteer node: Using browser WebSocket endpoint from environment variable: ${browserWSEndpoint}`,
-          );
-        }
-        if (protocol && protocol !== "cdp") {
-          console.log(`Puppeteer node: Using protocol: ${protocol}`);
-        }
-        browser = await puppeteer.connect({
-          browserWSEndpoint,
-          protocol: protocol || "cdp",
-          protocolTimeout,
-        });
-      } else {
-        browser = await puppeteer.launch({
-          headless,
-          args,
-          executablePath,
-          protocolTimeout,
-        });
-      }
-    } catch (error) {
-      throw new Error(
-        `Failed to launch/connect to browser: ${(error as Error).message}`,
-      );
-    }
+		let connectedToRemoteBrowser = false;
+
+		try {
+  		browserWSEndpoint = await resolveBrowserWSEndpoint(
+    	browserWSEndpoint,
+    	browserDiscoveryUrl,
+  		);
+
+  		if (browserWSEndpoint) {
+    		connectedToRemoteBrowser = true;
+
+    		browser = await puppeteer.connect({
+      		browserWSEndpoint,
+      		protocolTimeout,
+    		});
+  		} else {
+    		browser = await puppeteer.launch({
+      		headless,
+      		args,
+      		executablePath,
+      		protocolTimeout,
+    		});
+  		}
+		} catch (error) {
+  		throw new Error(
+    		`Failed to launch/connect to browser: ${(error as Error).message}`,
+  		);
+		}
 
     const processItem = async (
       item: INodeExecutionData,
@@ -827,7 +877,7 @@ export class Puppeteer implements INodeType {
     } finally {
       if (browser) {
         try {
-          if (browserWSEndpoint) {
+          if (connectedToRemoteBrowser) {
             await browser.disconnect();
           } else {
             await browser.close();
